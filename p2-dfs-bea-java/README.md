@@ -43,11 +43,10 @@ java -jar target/p2-dfs-bea-java-0.1.0-SNAPSHOT.jar
 - Gestion des dates et montants invalides sans stack trace utilisateur
 - Gestion d'un historique absent ou vide
 - Jeu de données d'exemple dans `src/main/resources/emma_expenses.csv`
+- Statistiques par catégorie (option 3 du menu) : total global, nombre de mois couverts et tableau avec le total et la moyenne mensuelle de chaque catégorie. Le nombre de mois est l'étendue calendaire, du mois de la première dépense à celui de la dernière (mois sans dépense inclus) ; chaque moyenne est le total de la catégorie divisé par ce nombre. Les dépenses sans catégorie sont regroupées sous `(uncategorized)`.
 
 ## Fonctionnalités à implémenter par l'étudiant
 
-- Total global et statistiques par catégorie
-- Nombre de mois distincts et moyennes mensuelles
 - Simulation d'achat d'une voiture
 - Simulation de prêt immobilier avec limite d'endettement à 35 %
 - Tests unitaires et tests ciblés des nouvelles fonctionnalités
