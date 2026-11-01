@@ -50,7 +50,7 @@ class ExpenseServiceStatisticsTest {
                 expense(2024, 1, 10, "food", "10"),
                 expense(2024, 3, 10, "food", "10"));
 
-        assertEquals(3, service.countMonthsCovered(expenses));
+        assertEquals(3, service.computeStatistics(expenses).monthsCovered());
     }
 
     @Test
@@ -59,7 +59,7 @@ class ExpenseServiceStatisticsTest {
                 expense(2023, 11, 30, "food", "10"),
                 expense(2024, 2, 1, "food", "10"));
 
-        assertEquals(4, service.countMonthsCovered(expenses));
+        assertEquals(4, service.computeStatistics(expenses).monthsCovered());
     }
 
     @Test

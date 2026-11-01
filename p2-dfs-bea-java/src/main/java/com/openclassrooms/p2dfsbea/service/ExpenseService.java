@@ -68,7 +68,7 @@ public class ExpenseService {
      * Number of calendar months from the earliest to the latest expense, both included.
      * Months without any expense inside that span are counted. Returns 0 for an empty history.
      */
-    public long countMonthsCovered(List<Expense> expenses) {
+    private long countMonthsCovered(List<Expense> expenses) {
         if (expenses.isEmpty()) return 0;
         YearMonth first = expenses.stream().map(e -> YearMonth.from(e.getDate())).min(Comparator.naturalOrder()).get();
         YearMonth last = expenses.stream().map(e -> YearMonth.from(e.getDate())).max(Comparator.naturalOrder()).get();
