@@ -7,6 +7,7 @@ import com.openclassrooms.p2dfsbea.repository.ExpenseRepository;
 import com.openclassrooms.p2dfsbea.service.ExpenseService;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -14,10 +15,26 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * Console menu of the application.
+ *
+ * <p>TODO technical debt: only the menu loop and the Statistics option are covered by console-level
+ * tests (see ConsoleMenuStatisticsTest). The other console parts, "Show history" and "Add expense"
+ * (prompts, input parsing and error messages), still have to be test-covered.
+ */
 public class ConsoleMenu {
-    private final Scanner scanner = new Scanner(System.in);
-    private final ExpenseRepository repository = new ExpenseRepository();
-    private final ExpenseService service = new ExpenseService(repository);
+    private final Scanner scanner;
+    private final ExpenseService service;
+
+    public ConsoleMenu() {
+        this(System.in, new ExpenseService(new ExpenseRepository()));
+    }
+
+    /** Lets tests drive the menu with scripted input and a stubbed service. */
+    ConsoleMenu(InputStream input, ExpenseService service) {
+        this.scanner = new Scanner(input);
+        this.service = service;
+    }
 
     public void start() {
         boolean running = true;
