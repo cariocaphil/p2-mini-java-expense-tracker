@@ -36,25 +36,32 @@ public class ExpenseService {
 
     public ExpenseStatistics computeStatistics(List<Expense> expenses) {
         long months = countMonthsCovered(expenses);
+        BigDecimal overallTotal = sumAmounts(expenses);
+        List<CategoryStatistics> categories = buildCategoryStatistics(expenses, months);
+        return new ExpenseStatistics(overallTotal, months, categories);
+    }
 
-        BigDecimal overallTotal = expenses.stream()
+    private BigDecimal sumAmounts(List<Expense> expenses) {
+        return expenses.stream()
                 .map(Expense::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
 
-        Map<String, BigDecimal> totalsByCategory = expenses.stream()
-                .collect(Collectors.groupingBy(
-                        e -> categoryLabel(e.getCategory()),
-                        TreeMap::new,
-                        Collectors.reducing(BigDecimal.ZERO, Expense::getAmount, BigDecimal::add)));
-
-        List<CategoryStatistics> categories = totalsByCategory.entrySet().stream()
+    private List<CategoryStatistics> buildCategoryStatistics(List<Expense> expenses, long months) {
+        return totalsByCategory(expenses).entrySet().stream()
                 .map(entry -> new CategoryStatistics(entry.getKey(), entry.getValue(),
                         monthlyAverage(entry.getValue(), months)))
                 .sorted(Comparator.comparing(CategoryStatistics::total).reversed()
                         .thenComparing(CategoryStatistics::category))
                 .toList();
+    }
 
-        return new ExpenseStatistics(overallTotal, months, categories);
+    private Map<String, BigDecimal> totalsByCategory(List<Expense> expenses) {
+        return expenses.stream()
+                .collect(Collectors.groupingBy(
+                        e -> categoryLabel(e.getCategory()),
+                        TreeMap::new,
+                        Collectors.reducing(BigDecimal.ZERO, Expense::getAmount, BigDecimal::add)));
     }
 
     /**
