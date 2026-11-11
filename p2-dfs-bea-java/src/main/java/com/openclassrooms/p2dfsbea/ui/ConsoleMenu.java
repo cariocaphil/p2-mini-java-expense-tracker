@@ -150,11 +150,9 @@ public class ConsoleMenu {
         System.out.println();
         System.out.println("Prix de la voiture : " + formatAmount(r.carPrice()) + " €");
         System.out.println();
-        if (r.canBeFinanced()) {
-            System.out.println("Durée estimée : " + r.monthsRequired() + " mois");
-        } else {
-            System.out.println("Achat impossible par l'épargne : vos dépenses moyennes atteignent ou dépassent votre revenu.");
-        }
+        r.monthsRequired().ifPresentOrElse(
+                months -> System.out.println("Durée estimée : " + months + " mois"),
+                () -> System.out.println("Achat impossible par l'épargne : vos dépenses moyennes atteignent ou dépassent votre revenu."));
     }
 
     private static String formatAmount(BigDecimal amount) {

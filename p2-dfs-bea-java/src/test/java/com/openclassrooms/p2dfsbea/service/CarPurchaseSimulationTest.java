@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -37,14 +38,13 @@ class CarPurchaseSimulationTest {
 
         assertAmount("2200.00", result.averageMonthlyExpenses());
         assertAmount("800.00", result.monthlySavings());
-        assertEquals(15, result.monthsRequired());
-        assertTrue(result.canBeFinanced());
+        assertEquals(Optional.of(15L), result.monthsRequired());
         assertTrue(result.hasExpenseHistory());
     }
 
     @Test
     void partialMonthIsRoundedUp() {
-        assertEquals(16, simulate("3000", "12100").monthsRequired()); // 15.125 -> 16
+        assertEquals(Optional.of(16L), simulate("3000", "12100").monthsRequired()); // 15.125 -> 16
     }
 
     @Test
@@ -57,7 +57,7 @@ class CarPurchaseSimulationTest {
 
         assertAmount("1000.00", result.averageMonthlyExpenses());
         assertAmount("500.00", result.monthlySavings());
-        assertEquals(5, result.monthsRequired());
+        assertEquals(Optional.of(5L), result.monthsRequired());
     }
 
     @Test
@@ -65,8 +65,7 @@ class CarPurchaseSimulationTest {
         CarPurchaseSimulation result = simulate("2200", "12000");
 
         assertAmount("0.00", result.monthlySavings());
-        assertFalse(result.canBeFinanced());
-        assertEquals(0, result.monthsRequired());
+        assertEquals(Optional.empty(), result.monthsRequired());
     }
 
     @Test
@@ -74,13 +73,12 @@ class CarPurchaseSimulationTest {
         CarPurchaseSimulation result = simulate("2000", "12000");
 
         assertAmount("-200.00", result.monthlySavings());
-        assertFalse(result.canBeFinanced());
-        assertEquals(0, result.monthsRequired());
+        assertEquals(Optional.empty(), result.monthsRequired());
     }
 
     @Test
     void carPriceSmallerThanOneMonthOfSavingsTakesOneMonth() {
-        assertEquals(1, simulate("3000", "500").monthsRequired());
+        assertEquals(Optional.of(1L), simulate("3000", "500").monthsRequired());
     }
 
     @Test
@@ -91,7 +89,7 @@ class CarPurchaseSimulationTest {
         assertFalse(result.hasExpenseHistory());
         assertAmount("0.00", result.averageMonthlyExpenses());
         assertAmount("3000", result.monthlySavings());
-        assertEquals(4, result.monthsRequired());
+        assertEquals(Optional.of(4L), result.monthsRequired());
     }
 
     @Test

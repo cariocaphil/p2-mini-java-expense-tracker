@@ -48,6 +48,7 @@ public class ExpenseService {
 
     /**
      * Estimates how many months are needed to save the car price, starting from zero savings.
+     * Months required are empty when monthly savings are zero or negative.
      * monthlySavings = monthlyIncome - average monthly expenses; monthsRequired = ceil(carPrice / monthlySavings).
      * Without any expense, average expenses are taken as 0.
      *
@@ -64,9 +65,9 @@ public class ExpenseService {
         ExpenseStatistics stats = computeStatistics(expenses);
         BigDecimal averageExpenses = stats.averageMonthlyExpenses();
         BigDecimal monthlySavings = monthlyIncome.subtract(averageExpenses);
-        long monthsRequired = 0;
+        Optional<Long> monthsRequired = Optional.empty();
         if (monthlySavings.signum() > 0) {
-            monthsRequired = carPrice.divide(monthlySavings, 0, RoundingMode.CEILING).longValueExact();
+            monthsRequired = Optional.of(carPrice.divide(monthlySavings, 0, RoundingMode.CEILING).longValueExact());
         }
         return new CarPurchaseSimulation(monthlyIncome, averageExpenses, monthlySavings, carPrice,
                 monthsRequired, !expenses.isEmpty());
