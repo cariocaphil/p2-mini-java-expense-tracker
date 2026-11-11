@@ -118,8 +118,11 @@ public class ConsoleMenu {
         BigDecimal price = readPositiveAmount("Prix de la voiture (€) : ", "Le prix de la voiture");
         if (price == null) return;
 
-        CarPurchaseSimulation result = service.simulateCarPurchase(income, price);
-        printCarPurchaseSimulation(result);
+        try {
+            printCarPurchaseSimulation(service.simulateCarPurchase(income, price));
+        } catch (ArithmeticException e) {
+            System.out.println("Calcul impossible : la durée estimée est trop grande. Vérifiez les montants saisis.");
+        }
     }
 
     /** Reads an amount greater than zero; prints a French error and returns null if it is invalid. */

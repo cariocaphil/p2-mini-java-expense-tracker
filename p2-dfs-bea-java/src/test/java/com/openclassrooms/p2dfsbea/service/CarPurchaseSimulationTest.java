@@ -93,6 +93,14 @@ class CarPurchaseSimulationTest {
     }
 
     @Test
+    void monthsRequiredBeyondLongRangeThrowsArithmeticException() {
+        // 1e30 / 0.01 = 1e32 months, far above Long.MAX_VALUE (about 9.2e18): longValueExact() overflows.
+        // Documents the current behavior; no upper bound is enforced.
+        assertThrows(ArithmeticException.class, () -> service.simulateCarPurchase(
+                new BigDecimal("0.01"), new BigDecimal("1E+30"), List.of()));
+    }
+
+    @Test
     void incomeMustBeStrictlyPositive() {
         assertThrows(IllegalArgumentException.class, () -> simulate("0", "12000"));
         assertThrows(IllegalArgumentException.class, () -> simulate("-1", "12000"));

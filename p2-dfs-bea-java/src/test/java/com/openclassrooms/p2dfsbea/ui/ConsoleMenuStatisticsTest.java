@@ -151,6 +151,15 @@ class ConsoleMenuStatisticsTest {
     }
 
     @Test
+    void carSimulationWithAbsurdlyLargeDurationDoesNotCrash() {
+        String output = run(List.of(), "4", "0.01", "1E+30", "5");
+
+        assertTrue(output.contains("Calcul impossible"));
+        assertFalse(output.contains("Durée estimée"));
+        assertTrue(output.contains("Goodbye"));
+    }
+
+    @Test
     void carSimulationRejectsZeroIncome() {
         String output = run(List.of(), "4", "0", "5");
 
