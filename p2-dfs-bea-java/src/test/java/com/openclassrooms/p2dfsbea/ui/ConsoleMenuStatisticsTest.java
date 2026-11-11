@@ -151,7 +151,16 @@ class ConsoleMenuStatisticsTest {
     }
 
     @Test
-    void carSimulationRejectsZeroAmount() {
+    void carSimulationRejectsZeroIncome() {
+        String output = run(List.of(), "4", "0", "5");
+
+        assertTrue(output.contains("Le revenu mensuel doit être strictement supérieur à zéro."));
+        assertFalse(output.contains("Prix de la voiture (€) :"));
+        assertFalse(output.contains("Durée estimée"));
+    }
+
+    @Test
+    void carSimulationRejectsZeroPrice() {
         String output = run(List.of(), "4", "3000", "0", "5");
 
         assertTrue(output.contains("Le prix de la voiture doit être strictement supérieur à zéro."));
