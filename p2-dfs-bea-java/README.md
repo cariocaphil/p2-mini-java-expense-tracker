@@ -87,7 +87,11 @@ Les tests préécrits des fonctionnalités avancées ne sont volontairement pas 
 ```text
 src/main/java/com/openclassrooms/p2dfsbea/
 ├── P2DfsBeaApplication.java  # point d'entrée Spring Boot
-├── model/                     # Expense, statistiques, CarPurchaseSimulation
+├── model/
+│   ├── Expense.java
+│   ├── ExpenseStatistics.java
+│   ├── CategoryStatistics.java
+│   └── CarPurchaseSimulation.java
 ├── repository/ExpenseRepository.java
 ├── service/ExpenseService.java
 └── ui/ConsoleMenu.java
