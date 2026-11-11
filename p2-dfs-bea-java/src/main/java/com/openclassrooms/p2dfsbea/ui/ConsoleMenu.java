@@ -4,6 +4,7 @@ import com.openclassrooms.p2dfsbea.model.CarPurchaseSimulation;
 import com.openclassrooms.p2dfsbea.model.CategoryStatistics;
 import com.openclassrooms.p2dfsbea.model.Expense;
 import com.openclassrooms.p2dfsbea.model.ExpenseStatistics;
+import com.openclassrooms.p2dfsbea.model.MortgageSimulation;
 import com.openclassrooms.p2dfsbea.repository.ExpenseRepository;
 import com.openclassrooms.p2dfsbea.service.ExpenseService;
 
@@ -47,7 +48,8 @@ public class ConsoleMenu {
                 case "2" -> addExpense();
                 case "3" -> showStatistics();
                 case "4" -> simulateCarPurchase();
-                case "5" -> {
+                case "5" -> simulateMortgage();
+                case "6" -> {
                     System.out.println("Goodbye");
                     running = false;
                 }
@@ -62,7 +64,8 @@ public class ConsoleMenu {
         System.out.println("2) Add expense");
         System.out.println("3) Statistics");
         System.out.println("4) Simulation achat d'une voiture");
-        System.out.println("5) Quit");
+        System.out.println("5) Simulation prêt immobilier");
+        System.out.println("6) Quit");
         System.out.print("Choose an option: ");
     }
 
@@ -122,6 +125,84 @@ public class ConsoleMenu {
             printCarPurchaseSimulation(service.simulateCarPurchase(income, price));
         } catch (ArithmeticException e) {
             System.out.println("Calcul impossible : la durée estimée est trop grande. Vérifiez les montants saisis.");
+        }
+    }
+
+    private void simulateMortgage() {
+        System.out.println("\n=== Simulation prêt immobilier ===");
+        BigDecimal income = readPositiveAmount("Revenu mensuel net (€) : ", "Le revenu mensuel");
+        if (income == null) return;
+        BigDecimal rate = readRatePercent();
+        if (rate == null) return;
+        Integer years = readDurationYears();
+        if (years == null) return;
+
+        try {
+            printMortgageSimulation(service.simulateMortgage(income, rate, years));
+        } catch (ArithmeticException e) {
+            System.out.println("Calcul impossible : la durée ou le taux est trop grand. Vérifiez les valeurs saisies.");
+        }
+    }
+
+    /** Reads an annual rate in percent, zero allowed; prints a French error and returns null if invalid. */
+    private BigDecimal readRatePercent() {
+        System.out.print("Taux d'intérêt annuel (%) : ");
+        String text = scanner.nextLine().trim().replace(',', '.');
+        try {
+            BigDecimal rate = new BigDecimal(text);
+            if (rate.signum() < 0) {
+                System.out.println("Le taux d'intérêt ne peut pas être négatif.");
+                return null;
+            }
+            return rate;
+        } catch (NumberFormatException e) {
+            System.out.println("Taux invalide : un nombre décimal est attendu (ex. 3.5).");
+            return null;
+        }
+    }
+
+    /** Reads a whole number of years greater than zero; prints a French error and returns null if invalid. */
+    private Integer readDurationYears() {
+        System.out.print("Durée du prêt (années) : ");
+        String text = scanner.nextLine().trim();
+        try {
+            int years = Integer.parseInt(text);
+            if (years <= 0) {
+                System.out.println("La durée doit être strictement supérieure à zéro.");
+                return null;
+            }
+            return years;
+        } catch (NumberFormatException e) {
+            System.out.println("Durée invalide : un nombre entier d'années est attendu (ex. 20).");
+            return null;
+        }
+    }
+
+    private void printMortgageSimulation(MortgageSimulation r) {
+        System.out.println();
+        System.out.println("Revenu mensuel net : " + formatAmount(r.monthlyIncome()) + " €");
+        System.out.println("Dépenses mensuelles moyennes : " + formatAmount(r.averageMonthlyExpenses()) + " €");
+        if (!r.hasExpenseHistory()) {
+            System.out.println("(Aucun historique de dépenses : dépenses mensuelles considérées comme nulles.)");
+        }
+        System.out.println("Dépense logement mensuelle : " + formatAmount(r.monthlyHousingExpense()) + " €");
+        System.out.println("Épargne mensuelle disponible : " + formatAmount(r.monthlySavings()) + " €");
+        if (r.monthlySavings().signum() < 0) {
+            System.out.println("(Épargne négative : ramenée à 0. La capacité affichée peut être surestimée.)");
+        }
+        System.out.println();
+        System.out.println("Mensualité souhaitée : " + formatAmount(r.desiredMonthlyPayment()) + " €");
+        System.out.println("Plafond d'endettement (35 % du revenu) : " + formatAmount(r.debtCeiling()) + " €");
+        if (r.capped()) {
+            System.out.println("(Plafond d'endettement atteint : la mensualité est limitée à 35 % du revenu.)");
+        }
+        System.out.println("Mensualité retenue : " + formatAmount(r.monthlyPayment()) + " €");
+        System.out.println("Taux : " + r.annualRatePercent().toPlainString() + " % sur " + r.durationYears() + " ans");
+        System.out.println();
+        if (r.monthlyPayment().signum() == 0) {
+            System.out.println("Aucune mensualité possible : le montant empruntable est de 0.00 €.");
+        } else {
+            System.out.println("Montant maximum empruntable : " + formatAmount(r.borrowingCapacity()) + " €");
         }
     }
 

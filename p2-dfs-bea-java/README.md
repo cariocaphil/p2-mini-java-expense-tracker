@@ -75,9 +75,33 @@ Le total et le nombre de mois couverts sont ceux des statistiques (étendue cale
 - Si l'épargne mensuelle est nulle ou négative, l'achat ne peut pas être financé par l'épargne : un message l'explique et aucune durée n'est calculée (pas de division par zéro).
 - Sans historique de dépenses, les dépenses mensuelles moyennes sont considérées comme **nulles** (épargne = revenu) ; un message le précise dans le résultat.
 
+## Simulation de prêt immobilier (option 5)
+
+Estime le **montant maximum empruntable**, dans la limite d'un taux d'endettement de 35 %.
+
+**Saisies** (jamais enregistrées) : revenu mensuel net (strictement positif), taux d'intérêt annuel en % (0 autorisé), durée en années (entier strictement positif). Aucune valeur par défaut. Le revenu saisi sert à la fois à l'épargne et au plafond de 35 %.
+
+**Calcul** :
+
+```text
+épargne mensuelle  = revenu net - dépenses mensuelles moyennes            (comme la voiture)
+mensualité souhaitée = max(épargne, 0) + moyenne mensuelle de la catégorie "housing"
+plafond            = 35 % x revenu net
+mensualité retenue = min(mensualité souhaitée, plafond)
+r = taux annuel / 12 ; n = durée en années x 12
+capacité           = mensualité x (1 - (1 + r)^-n) / r      (mensualité x n si le taux est 0)
+```
+
+Résultat arrondi à 2 décimales (HALF_UP). Ce n'est pas une formule imposée par le dépôt : elle a été validée pour ce projet (annuité constante + plafond de 35 %).
+
+**Règle métier et limite** :
+
+- Une épargne négative est ramenée à 0 : la mensualité ne descend jamais sous le loyer actuel (le prêt remplace le loyer).
+- Simplification : quand les dépenses dépassent le revenu, la capacité peut être **surestimée** ; la console l'indique.
+- Sans dépense « housing », le logement vaut 0. Sans historique, les dépenses valent 0.
+
 ## Fonctionnalités à implémenter par l'étudiant
 
-- Simulation de prêt immobilier avec limite d'endettement à 35 %
 - Tests unitaires et tests ciblés des nouvelles fonctionnalités
 
 Les tests préécrits des fonctionnalités avancées ne sont volontairement pas inclus dans ce starter afin que le projet compile avant leur implémentation.
@@ -91,7 +115,8 @@ src/main/java/com/openclassrooms/p2dfsbea/
 │   ├── Expense.java
 │   ├── ExpenseStatistics.java
 │   ├── CategoryStatistics.java
-│   └── CarPurchaseSimulation.java
+│   ├── CarPurchaseSimulation.java
+│   └── MortgageSimulation.java
 ├── repository/ExpenseRepository.java
 ├── service/ExpenseService.java
 └── ui/ConsoleMenu.java

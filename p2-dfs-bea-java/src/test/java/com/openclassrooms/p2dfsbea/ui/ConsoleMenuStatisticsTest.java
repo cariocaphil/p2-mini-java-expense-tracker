@@ -53,16 +53,16 @@ class ConsoleMenuStatisticsTest {
 
     @Test
     void menuListsStatisticsAndQuitOptions() {
-        String output = run(List.of(), "5");
+        String output = run(List.of(), "6");
 
         assertTrue(output.contains("3) Statistics"));
-        assertTrue(output.contains("5) Quit"));
+        assertTrue(output.contains("6) Quit"));
         assertTrue(output.contains("Goodbye"));
     }
 
     @Test
     void selectingStatisticsReturnsToTheMenuInsteadOfQuitting() {
-        String output = run(List.of(), "3", "5");
+        String output = run(List.of(), "3", "6");
 
         assertEquals(2, output.split("Choose an option: ", -1).length - 1);
         assertTrue(output.contains("Goodbye"));
@@ -70,14 +70,14 @@ class ConsoleMenuStatisticsTest {
 
     @Test
     void unknownOptionIsRejected() {
-        String output = run(List.of(), "9", "5");
+        String output = run(List.of(), "9", "6");
 
         assertTrue(output.contains("Unknown option, please try again."));
     }
 
     @Test
     void emptyHistoryShowsMessageInsteadOfTable() {
-        String output = run(List.of(), "3", "5");
+        String output = run(List.of(), "3", "6");
 
         assertTrue(output.contains("No expenses recorded yet."));
         assertFalse(output.contains("Overall total"));
@@ -90,7 +90,7 @@ class ConsoleMenuStatisticsTest {
                 expense(2024, 1, "housing", "500.00"),
                 expense(2024, 3, "food", "45.30"));
 
-        String output = run(history, "3", "5");
+        String output = run(history, "3", "6");
 
         assertTrue(output.contains("Overall total: 545.30\n"));
         assertTrue(output.contains("Months covered: 3\n"));
@@ -109,7 +109,7 @@ class ConsoleMenuStatisticsTest {
     void categoryColumnGrowsToFitLongestCategoryName() {
         List<Expense> history = List.of(expense(2024, 1, "", "9.90"));
 
-        String output = run(history, "3", "5");
+        String output = run(history, "3", "6");
 
         String expectedTable = String.join("\n",
                 "+-----------------+-------+-----------------+",
@@ -125,7 +125,7 @@ class ConsoleMenuStatisticsTest {
     void carSimulationShowsFrenchSummary() {
         List<Expense> history = List.of(expense(2024, 1, "housing", "2200.00"));
 
-        String output = run(history, "4", "3000", "12000", "5");
+        String output = run(history, "4", "3000", "12000", "6");
 
         assertTrue(output.contains("=== Simulation achat d'une voiture ==="));
         assertTrue(output.contains("Revenu mensuel net : 3000.00 €\n"));
@@ -137,14 +137,14 @@ class ConsoleMenuStatisticsTest {
 
     @Test
     void carSimulationAcceptsCommaDecimalSeparator() {
-        String output = run(List.of(), "4", "3000,50", "1000", "5");
+        String output = run(List.of(), "4", "3000,50", "1000", "6");
 
         assertTrue(output.contains("Revenu mensuel net : 3000.50 €"));
     }
 
     @Test
     void carSimulationWithInvalidNumberDoesNotCrash() {
-        String output = run(List.of(), "4", "abc", "5");
+        String output = run(List.of(), "4", "abc", "6");
 
         assertTrue(output.contains("Montant invalide"));
         assertTrue(output.contains("Goodbye"));
@@ -152,7 +152,7 @@ class ConsoleMenuStatisticsTest {
 
     @Test
     void carSimulationWithAbsurdlyLargeDurationDoesNotCrash() {
-        String output = run(List.of(), "4", "0.01", "1E+30", "5");
+        String output = run(List.of(), "4", "0.01", "1E+30", "6");
 
         assertTrue(output.contains("Calcul impossible"));
         assertFalse(output.contains("Durée estimée"));
@@ -161,7 +161,7 @@ class ConsoleMenuStatisticsTest {
 
     @Test
     void carSimulationRejectsZeroIncome() {
-        String output = run(List.of(), "4", "0", "5");
+        String output = run(List.of(), "4", "0", "6");
 
         assertTrue(output.contains("Le revenu mensuel doit être strictement supérieur à zéro."));
         assertFalse(output.contains("Prix de la voiture (€) :"));
@@ -170,7 +170,7 @@ class ConsoleMenuStatisticsTest {
 
     @Test
     void carSimulationRejectsZeroPrice() {
-        String output = run(List.of(), "4", "3000", "0", "5");
+        String output = run(List.of(), "4", "3000", "0", "6");
 
         assertTrue(output.contains("Le prix de la voiture doit être strictement supérieur à zéro."));
         assertFalse(output.contains("Durée estimée"));
@@ -180,7 +180,7 @@ class ConsoleMenuStatisticsTest {
     void carSimulationExplainsWhenSavingsAreNotPositive() {
         List<Expense> history = List.of(expense(2024, 1, "housing", "2200.00"));
 
-        String output = run(history, "4", "2000", "12000", "5");
+        String output = run(history, "4", "2000", "12000", "6");
 
         assertTrue(output.contains("Achat impossible par l'épargne"));
         assertFalse(output.contains("Durée estimée"));
@@ -188,7 +188,7 @@ class ConsoleMenuStatisticsTest {
 
     @Test
     void carSimulationMentionsMissingExpenseHistory() {
-        String output = run(List.of(), "4", "3000", "12000", "5");
+        String output = run(List.of(), "4", "3000", "12000", "6");
 
         assertTrue(output.contains("Aucun historique de dépenses"));
         assertTrue(output.contains("Durée estimée : 4 mois"));
