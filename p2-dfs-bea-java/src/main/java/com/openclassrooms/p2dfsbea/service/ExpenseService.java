@@ -1,5 +1,6 @@
 package com.openclassrooms.p2dfsbea.service;
 
+import com.openclassrooms.p2dfsbea.model.CarPurchaseSimulation;
 import com.openclassrooms.p2dfsbea.model.CategoryStatistics;
 import com.openclassrooms.p2dfsbea.model.Expense;
 import com.openclassrooms.p2dfsbea.model.ExpenseStatistics;
@@ -39,6 +40,37 @@ public class ExpenseService {
         BigDecimal overallTotal = sumAmounts(expenses);
         List<CategoryStatistics> categories = buildCategoryStatistics(expenses, months);
         return new ExpenseStatistics(overallTotal, months, categories);
+    }
+
+    public CarPurchaseSimulation simulateCarPurchase(BigDecimal monthlyIncome, BigDecimal carPrice) {
+        return simulateCarPurchase(monthlyIncome, carPrice, loadAllExpenses());
+    }
+
+    /**
+     * Estimates how many months are needed to save the car price, starting from zero savings.
+     * Months required are empty when monthly savings are zero or negative.
+     * monthlySavings = monthlyIncome - average monthly expenses; monthsRequired = ceil(carPrice / monthlySavings).
+     * Without any expense, average expenses are taken as 0.
+     *
+     * @throws IllegalArgumentException if the income or the car price is not strictly positive
+     */
+    public CarPurchaseSimulation simulateCarPurchase(BigDecimal monthlyIncome, BigDecimal carPrice,
+                                                     List<Expense> expenses) {
+        if (monthlyIncome.signum() <= 0) {
+            throw new IllegalArgumentException("Monthly income must be greater than zero.");
+        }
+        if (carPrice.signum() <= 0) {
+            throw new IllegalArgumentException("Car price must be greater than zero.");
+        }
+        ExpenseStatistics stats = computeStatistics(expenses);
+        BigDecimal averageExpenses = stats.averageMonthlyExpenses();
+        BigDecimal monthlySavings = monthlyIncome.subtract(averageExpenses);
+        Optional<Long> monthsRequired = Optional.empty();
+        if (monthlySavings.signum() > 0) {
+            monthsRequired = Optional.of(carPrice.divide(monthlySavings, 0, RoundingMode.CEILING).longValueExact());
+        }
+        return new CarPurchaseSimulation(monthlyIncome, averageExpenses, monthlySavings, carPrice,
+                monthsRequired, !expenses.isEmpty());
     }
 
     private BigDecimal sumAmounts(List<Expense> expenses) {

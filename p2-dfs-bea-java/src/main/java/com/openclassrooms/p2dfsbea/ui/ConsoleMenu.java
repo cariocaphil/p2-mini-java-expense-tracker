@@ -1,5 +1,6 @@
 package com.openclassrooms.p2dfsbea.ui;
 
+import com.openclassrooms.p2dfsbea.model.CarPurchaseSimulation;
 import com.openclassrooms.p2dfsbea.model.CategoryStatistics;
 import com.openclassrooms.p2dfsbea.model.Expense;
 import com.openclassrooms.p2dfsbea.model.ExpenseStatistics;
@@ -45,7 +46,8 @@ public class ConsoleMenu {
                 case "1" -> showHistory();
                 case "2" -> addExpense();
                 case "3" -> showStatistics();
-                case "4" -> {
+                case "4" -> simulateCarPurchase();
+                case "5" -> {
                     System.out.println("Goodbye");
                     running = false;
                 }
@@ -59,7 +61,8 @@ public class ConsoleMenu {
         System.out.println("1) Show history");
         System.out.println("2) Add expense");
         System.out.println("3) Statistics");
-        System.out.println("4) Quit");
+        System.out.println("4) Simulation achat d'une voiture");
+        System.out.println("5) Quit");
         System.out.print("Choose an option: ");
     }
 
@@ -106,6 +109,53 @@ public class ConsoleMenu {
             System.out.printf(rowFormat, row.category(), formatAmount(row.total()), formatAmount(row.monthlyAverage()));
         }
         System.out.println(separator);
+    }
+
+    private void simulateCarPurchase() {
+        System.out.println("\n=== Simulation achat d'une voiture ===");
+        BigDecimal income = readPositiveAmount("Revenu mensuel net (€) : ", "Le revenu mensuel");
+        if (income == null) return;
+        BigDecimal price = readPositiveAmount("Prix de la voiture (€) : ", "Le prix de la voiture");
+        if (price == null) return;
+
+        try {
+            printCarPurchaseSimulation(service.simulateCarPurchase(income, price));
+        } catch (ArithmeticException e) {
+            System.out.println("Calcul impossible : la durée estimée est trop grande. Vérifiez les montants saisis.");
+        }
+    }
+
+    /** Reads an amount greater than zero; prints a French error and returns null if it is invalid. */
+    private BigDecimal readPositiveAmount(String prompt, String label) {
+        System.out.print(prompt);
+        String text = scanner.nextLine().trim().replace(',', '.');
+        try {
+            BigDecimal amount = new BigDecimal(text);
+            if (amount.signum() <= 0) {
+                System.out.println(label + " doit être strictement supérieur à zéro.");
+                return null;
+            }
+            return amount;
+        } catch (NumberFormatException e) {
+            System.out.println("Montant invalide : un nombre décimal est attendu (ex. 3000.50).");
+            return null;
+        }
+    }
+
+    private void printCarPurchaseSimulation(CarPurchaseSimulation r) {
+        System.out.println();
+        System.out.println("Revenu mensuel net : " + formatAmount(r.monthlyIncome()) + " €");
+        System.out.println("Dépenses mensuelles moyennes : " + formatAmount(r.averageMonthlyExpenses()) + " €");
+        if (!r.hasExpenseHistory()) {
+            System.out.println("(Aucun historique de dépenses : dépenses mensuelles considérées comme nulles.)");
+        }
+        System.out.println("Épargne mensuelle disponible : " + formatAmount(r.monthlySavings()) + " €");
+        System.out.println();
+        System.out.println("Prix de la voiture : " + formatAmount(r.carPrice()) + " €");
+        System.out.println();
+        r.monthsRequired().ifPresentOrElse(
+                months -> System.out.println("Durée estimée : " + months + " mois"),
+                () -> System.out.println("Achat impossible par l'épargne : vos dépenses moyennes atteignent ou dépassent votre revenu."));
     }
 
     private static String formatAmount(BigDecimal amount) {
