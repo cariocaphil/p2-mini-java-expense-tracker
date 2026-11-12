@@ -5,6 +5,8 @@ import java.math.BigDecimal;
 /**
  * Result of a mortgage borrowing simulation.
  *
+ * @param monthlyIncome monthly net income entered by the user, used for both the savings and the debt ceiling
+ * @param averageMonthlyExpenses total expenses divided by the months covered by the history, 0 without history
  * @param monthlySavings monthly income minus average monthly expenses; may be negative
  * @param monthlyHousingExpense average monthly amount of the "housing" category, 0 if none
  * @param desiredMonthlyPayment max(monthlySavings, 0) + monthlyHousingExpense, before the debt ceiling
@@ -12,6 +14,7 @@ import java.math.BigDecimal;
  * @param monthlyPayment min(desiredMonthlyPayment, debtCeiling), the payment used for the calculation
  * @param capped true when the desired payment exceeds the debt ceiling
  * @param annualRatePercent annual interest rate in percent (e.g. 3 for 3 %)
+ * @param durationYears loan duration in years
  * @param borrowingCapacity maximum borrowable amount, rounded to 2 decimals (HALF_UP)
  * @param hasExpenseHistory false when no expense exists, in which case expenses are taken as 0
  */
