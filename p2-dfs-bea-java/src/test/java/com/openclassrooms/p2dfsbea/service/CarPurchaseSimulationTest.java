@@ -15,7 +15,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CarPurchaseSimulationTest {
-    private final ExpenseService service = new ExpenseService(null);
+    private final ExpenseService expenseService = new ExpenseService(null);
+    private final CarSimulationService service = new CarSimulationService(expenseService);
 
     /** One month of history with 2200.00 of expenses: average monthly expenses = 2200.00. */
     private final List<Expense> history = List.of(expense(1, "2200.00"));

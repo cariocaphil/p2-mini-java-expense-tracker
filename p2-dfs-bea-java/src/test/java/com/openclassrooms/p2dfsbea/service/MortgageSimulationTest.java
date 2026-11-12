@@ -15,7 +15,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * (1 - 1.01^-12) / 0.01 = 11.2550775, so a 1000 payment borrows 11255.08 and a 1050 payment 11817.83.
  */
 class MortgageSimulationTest {
-    private final ExpenseService service = new ExpenseService(null);
+    private final ExpenseService expenseService = new ExpenseService(null);
+    private final MortgageSimulationService service = new MortgageSimulationService(expenseService);
 
     private static Expense expense(String category, String amount) {
         return new Expense(LocalDate.of(2024, 1, 10), category, "test", new BigDecimal(amount));

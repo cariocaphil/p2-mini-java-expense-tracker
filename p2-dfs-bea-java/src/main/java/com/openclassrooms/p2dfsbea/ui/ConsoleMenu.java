@@ -6,7 +6,9 @@ import com.openclassrooms.p2dfsbea.model.Expense;
 import com.openclassrooms.p2dfsbea.model.ExpenseStatistics;
 import com.openclassrooms.p2dfsbea.model.MortgageSimulation;
 import com.openclassrooms.p2dfsbea.repository.ExpenseRepository;
+import com.openclassrooms.p2dfsbea.service.CarSimulationService;
 import com.openclassrooms.p2dfsbea.service.ExpenseService;
+import com.openclassrooms.p2dfsbea.service.MortgageSimulationService;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,6 +29,8 @@ import java.util.Scanner;
 public class ConsoleMenu {
     private final Scanner scanner;
     private final ExpenseService service;
+    private final CarSimulationService carSimulationService;
+    private final MortgageSimulationService mortgageSimulationService;
 
     public ConsoleMenu() {
         this(System.in, new ExpenseService(new ExpenseRepository()));
@@ -36,6 +40,8 @@ public class ConsoleMenu {
     ConsoleMenu(InputStream input, ExpenseService service) {
         this.scanner = new Scanner(input);
         this.service = service;
+        this.carSimulationService = new CarSimulationService(service);
+        this.mortgageSimulationService = new MortgageSimulationService(service);
     }
 
     public void start() {
@@ -122,7 +128,7 @@ public class ConsoleMenu {
         if (price == null) return;
 
         try {
-            printCarPurchaseSimulation(service.simulateCarPurchase(income, price));
+            printCarPurchaseSimulation(carSimulationService.simulateCarPurchase(income, price));
         } catch (ArithmeticException e) {
             System.out.println("Calcul impossible : la durée estimée est trop grande. Vérifiez les montants saisis.");
         }
@@ -137,7 +143,7 @@ public class ConsoleMenu {
         Integer years = readDurationYears();
         if (years == null) return;
 
-        printMortgageSimulation(service.simulateMortgage(income, rate, years));
+        printMortgageSimulation(mortgageSimulationService.simulateMortgage(income, rate, years));
     }
 
     /** Reads an annual rate in percent, zero allowed; prints a French error and returns null if invalid. */
@@ -150,9 +156,9 @@ public class ConsoleMenu {
                 System.out.println("Le taux d'intérêt ne peut pas être négatif.");
                 return null;
             }
-            if (rate.compareTo(ExpenseService.MAX_ANNUAL_RATE_PERCENT) > 0) {
+            if (rate.compareTo(MortgageSimulationService.MAX_ANNUAL_RATE_PERCENT) > 0) {
                 System.out.println("Le taux d'intérêt ne peut pas dépasser "
-                        + ExpenseService.MAX_ANNUAL_RATE_PERCENT.toPlainString() + " %.");
+                        + MortgageSimulationService.MAX_ANNUAL_RATE_PERCENT.toPlainString() + " %.");
                 return null;
             }
             return rate;
@@ -172,8 +178,8 @@ public class ConsoleMenu {
                 System.out.println("La durée doit être strictement supérieure à zéro.");
                 return null;
             }
-            if (years > ExpenseService.MAX_LOAN_DURATION_YEARS) {
-                System.out.println("La durée ne peut pas dépasser " + ExpenseService.MAX_LOAN_DURATION_YEARS + " ans.");
+            if (years > MortgageSimulationService.MAX_LOAN_DURATION_YEARS) {
+                System.out.println("La durée ne peut pas dépasser " + MortgageSimulationService.MAX_LOAN_DURATION_YEARS + " ans.");
                 return null;
             }
             return years;
