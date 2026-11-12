@@ -97,7 +97,7 @@ public class ExpenseService {
      * the real financial capacity.
      *
      * @throws IllegalArgumentException if the income or the rate is null, the income is not strictly positive, the rate is outside
-     *         [0, {@value #MAX_ANNUAL_RATE_PERCENT} %] or the duration is outside [1, {@value #MAX_LOAN_DURATION_YEARS}] years
+     *         [0, {@link #MAX_ANNUAL_RATE_PERCENT} (100) %] or the duration is outside [1, {@value #MAX_LOAN_DURATION_YEARS}] years
      */
     public MortgageSimulation simulateMortgage(BigDecimal monthlyIncome, BigDecimal annualRatePercent,
                                                int durationYears, List<Expense> expenses) {
