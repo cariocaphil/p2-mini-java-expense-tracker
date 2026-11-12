@@ -60,15 +60,13 @@ public class ExpenseService {
      */
     public CarPurchaseSimulation simulateCarPurchase(BigDecimal monthlyIncome, BigDecimal carPrice,
                                                      List<Expense> expenses) {
-        if (monthlyIncome.signum() <= 0) {
-            throw new IllegalArgumentException("Monthly income must be greater than zero.");
-        }
+        requirePositiveIncome(monthlyIncome);
         if (carPrice.signum() <= 0) {
             throw new IllegalArgumentException("Car price must be greater than zero.");
         }
-        ExpenseStatistics stats = computeStatistics(expenses);
-        BigDecimal averageExpenses = stats.averageMonthlyExpenses();
-        BigDecimal monthlySavings = monthlyIncome.subtract(averageExpenses);
+        MonthlyBudget budget = computeMonthlyBudget(monthlyIncome, expenses);
+        BigDecimal averageExpenses = budget.averageExpenses();
+        BigDecimal monthlySavings = budget.monthlySavings();
         Optional<Long> monthsRequired = Optional.empty();
         if (monthlySavings.signum() > 0) {
             monthsRequired = Optional.of(carPrice.divide(monthlySavings, 0, RoundingMode.CEILING).longValueExact());
@@ -100,19 +98,17 @@ public class ExpenseService {
      */
     public MortgageSimulation simulateMortgage(BigDecimal monthlyIncome, BigDecimal annualRatePercent,
                                                int durationYears, List<Expense> expenses) {
-        if (monthlyIncome.signum() <= 0) {
-            throw new IllegalArgumentException("Monthly income must be greater than zero.");
-        }
+        requirePositiveIncome(monthlyIncome);
         if (annualRatePercent.signum() < 0) {
             throw new IllegalArgumentException("Interest rate must not be negative.");
         }
         if (durationYears <= 0) {
             throw new IllegalArgumentException("Loan duration must be greater than zero.");
         }
-        ExpenseStatistics stats = computeStatistics(expenses);
-        BigDecimal averageExpenses = stats.averageMonthlyExpenses();
-        BigDecimal monthlySavings = monthlyIncome.subtract(averageExpenses);
-        BigDecimal housing = stats.categories().stream()
+        MonthlyBudget budget = computeMonthlyBudget(monthlyIncome, expenses);
+        BigDecimal averageExpenses = budget.averageExpenses();
+        BigDecimal monthlySavings = budget.monthlySavings();
+        BigDecimal housing = budget.statistics().categories().stream()
                 .filter(c -> HOUSING_CATEGORY.equalsIgnoreCase(c.category()))
                 .map(CategoryStatistics::monthlyAverage)
                 .findFirst()
@@ -128,6 +124,22 @@ public class ExpenseService {
         return new MortgageSimulation(monthlyIncome, averageExpenses, monthlySavings, housing, desiredPayment,
                 debtCeiling, monthlyPayment, capped, annualRatePercent, durationYears, capacity,
                 !expenses.isEmpty());
+    }
+
+    private static void requirePositiveIncome(BigDecimal monthlyIncome) {
+        if (monthlyIncome.signum() <= 0) {
+            throw new IllegalArgumentException("Monthly income must be greater than zero.");
+        }
+    }
+
+    /** Statistics of the history and what remains of the income once average expenses are paid. */
+    private record MonthlyBudget(ExpenseStatistics statistics, BigDecimal averageExpenses, BigDecimal monthlySavings) {
+    }
+
+    private MonthlyBudget computeMonthlyBudget(BigDecimal monthlyIncome, List<Expense> expenses) {
+        ExpenseStatistics stats = computeStatistics(expenses);
+        BigDecimal averageExpenses = stats.averageMonthlyExpenses();
+        return new MonthlyBudget(stats, averageExpenses, monthlyIncome.subtract(averageExpenses));
     }
 
     /** (1 - (1 + r)^-n) / r with r the monthly rate; n when r is 0. */
