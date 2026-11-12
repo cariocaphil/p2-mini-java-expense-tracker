@@ -96,12 +96,15 @@ public class ExpenseService {
      * expense (the loan replaces the rent). Simplification: when expenses exceed income, this can overestimate
      * the real financial capacity.
      *
-     * @throws IllegalArgumentException if the income is not strictly positive, the rate is outside
+     * @throws IllegalArgumentException if the income or the rate is null, the income is not strictly positive, the rate is outside
      *         [0, {@value #MAX_ANNUAL_RATE_PERCENT} %] or the duration is outside [1, {@value #MAX_LOAN_DURATION_YEARS}] years
      */
     public MortgageSimulation simulateMortgage(BigDecimal monthlyIncome, BigDecimal annualRatePercent,
                                                int durationYears, List<Expense> expenses) {
         requirePositiveIncome(monthlyIncome);
+        if (annualRatePercent == null) {
+            throw new IllegalArgumentException("Interest rate must not be null.");
+        }
         if (annualRatePercent.signum() < 0) {
             throw new IllegalArgumentException("Interest rate must not be negative.");
         }
@@ -136,6 +139,9 @@ public class ExpenseService {
     }
 
     private static void requirePositiveIncome(BigDecimal monthlyIncome) {
+        if (monthlyIncome == null) {
+            throw new IllegalArgumentException("Monthly income must not be null.");
+        }
         if (monthlyIncome.signum() <= 0) {
             throw new IllegalArgumentException("Monthly income must be greater than zero.");
         }

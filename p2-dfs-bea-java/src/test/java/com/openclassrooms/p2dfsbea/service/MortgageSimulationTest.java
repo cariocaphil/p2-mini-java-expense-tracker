@@ -162,6 +162,20 @@ class MortgageSimulationTest {
     }
 
     @Test
+    void nullIncomeIsRejectedWithAMeaningfulMessage() {
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> service.simulateMortgage(null, new BigDecimal("3"), 20, List.of()));
+        assertEquals("Monthly income must not be null.", e.getMessage());
+    }
+
+    @Test
+    void nullRateIsRejectedWithAMeaningfulMessage() {
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> service.simulateMortgage(new BigDecimal("3000"), null, 20, List.of()));
+        assertEquals("Interest rate must not be null.", e.getMessage());
+    }
+
+    @Test
     void rateAndDurationUpperBoundsAreEnforced() {
         assertDoesNotThrow(() -> simulate("3000", "100", 50));
         assertThrows(IllegalArgumentException.class, () -> simulate("3000", "100.01", 20));
