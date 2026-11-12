@@ -19,6 +19,8 @@ import java.util.stream.Collectors;
 public class ExpenseService {
     public static final String UNCATEGORIZED = "(uncategorized)";
     static final String HOUSING_CATEGORY = "housing";
+    public static final int MAX_LOAN_DURATION_YEARS = 50;
+    public static final BigDecimal MAX_ANNUAL_RATE_PERCENT = new BigDecimal("100");
     static final BigDecimal DEBT_RATIO = new BigDecimal("0.35");
 
     private final ExpenseRepository repository;
@@ -94,7 +96,8 @@ public class ExpenseService {
      * expense (the loan replaces the rent). Simplification: when expenses exceed income, this can overestimate
      * the real financial capacity.
      *
-     * @throws IllegalArgumentException if the income or the duration is not strictly positive, or the rate is negative
+     * @throws IllegalArgumentException if the income is not strictly positive, the rate is outside
+     *         [0, {@value #MAX_ANNUAL_RATE_PERCENT} %] or the duration is outside [1, {@value #MAX_LOAN_DURATION_YEARS}] years
      */
     public MortgageSimulation simulateMortgage(BigDecimal monthlyIncome, BigDecimal annualRatePercent,
                                                int durationYears, List<Expense> expenses) {
@@ -102,8 +105,14 @@ public class ExpenseService {
         if (annualRatePercent.signum() < 0) {
             throw new IllegalArgumentException("Interest rate must not be negative.");
         }
+        if (annualRatePercent.compareTo(MAX_ANNUAL_RATE_PERCENT) > 0) {
+            throw new IllegalArgumentException("Interest rate must not exceed " + MAX_ANNUAL_RATE_PERCENT + " %.");
+        }
         if (durationYears <= 0) {
             throw new IllegalArgumentException("Loan duration must be greater than zero.");
+        }
+        if (durationYears > MAX_LOAN_DURATION_YEARS) {
+            throw new IllegalArgumentException("Loan duration must not exceed " + MAX_LOAN_DURATION_YEARS + " years.");
         }
         MonthlyBudget budget = computeMonthlyBudget(monthlyIncome, expenses);
         BigDecimal averageExpenses = budget.averageExpenses();
@@ -118,7 +127,7 @@ public class ExpenseService {
         BigDecimal monthlyPayment = desiredPayment.min(debtCeiling);
         boolean capped = desiredPayment.compareTo(debtCeiling) > 0;
 
-        int months = Math.multiplyExact(durationYears, 12);
+        int months = durationYears * 12;
         BigDecimal capacity = monthlyPayment.multiply(annuityFactor(annualRatePercent, months))
                 .setScale(2, RoundingMode.HALF_UP);
         return new MortgageSimulation(monthlyIncome, averageExpenses, monthlySavings, housing, desiredPayment,

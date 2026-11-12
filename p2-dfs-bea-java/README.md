@@ -79,7 +79,7 @@ Le total et le nombre de mois couverts sont ceux des statistiques (étendue cale
 
 Estime le **montant maximum empruntable**, dans la limite d'un taux d'endettement de 35 %.
 
-**Saisies** (jamais enregistrées) : revenu mensuel net (strictement positif), taux d'intérêt annuel en % (0 autorisé), durée en années (entier strictement positif). Aucune valeur par défaut. Le revenu saisi sert à la fois à l'épargne et au plafond de 35 %.
+**Saisies** (jamais enregistrées) : revenu mensuel net (strictement positif), taux d'intérêt annuel en % (0 autorisé), durée en années (entier entre 1 et 50). Le taux est limité à 100 %. Aucune valeur par défaut. Le revenu saisi sert à la fois à l'épargne et au plafond de 35 %.
 
 **Calcul** :
 

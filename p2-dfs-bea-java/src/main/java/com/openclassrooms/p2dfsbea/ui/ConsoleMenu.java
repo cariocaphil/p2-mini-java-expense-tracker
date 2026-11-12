@@ -137,11 +137,7 @@ public class ConsoleMenu {
         Integer years = readDurationYears();
         if (years == null) return;
 
-        try {
-            printMortgageSimulation(service.simulateMortgage(income, rate, years));
-        } catch (ArithmeticException e) {
-            System.out.println("Calcul impossible : la durée ou le taux est trop grand. Vérifiez les valeurs saisies.");
-        }
+        printMortgageSimulation(service.simulateMortgage(income, rate, years));
     }
 
     /** Reads an annual rate in percent, zero allowed; prints a French error and returns null if invalid. */
@@ -152,6 +148,11 @@ public class ConsoleMenu {
             BigDecimal rate = new BigDecimal(text);
             if (rate.signum() < 0) {
                 System.out.println("Le taux d'intérêt ne peut pas être négatif.");
+                return null;
+            }
+            if (rate.compareTo(ExpenseService.MAX_ANNUAL_RATE_PERCENT) > 0) {
+                System.out.println("Le taux d'intérêt ne peut pas dépasser "
+                        + ExpenseService.MAX_ANNUAL_RATE_PERCENT.toPlainString() + " %.");
                 return null;
             }
             return rate;
@@ -169,6 +170,10 @@ public class ConsoleMenu {
             int years = Integer.parseInt(text);
             if (years <= 0) {
                 System.out.println("La durée doit être strictement supérieure à zéro.");
+                return null;
+            }
+            if (years > ExpenseService.MAX_LOAN_DURATION_YEARS) {
+                System.out.println("La durée ne peut pas dépasser " + ExpenseService.MAX_LOAN_DURATION_YEARS + " ans.");
                 return null;
             }
             return years;

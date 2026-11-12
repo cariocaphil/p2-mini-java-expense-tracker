@@ -125,6 +125,18 @@ class ConsoleMenuMortgageTest {
     }
 
     @Test
+    void tooHighRateIsRejected() {
+        assertTrue(run(List.of(), "5", "3000", "1E+9", "6").contains("Le taux d'intérêt ne peut pas dépasser 100 %."));
+    }
+
+    @Test
+    void tooLongDurationIsRejected() {
+        String output = run(List.of(), "5", "3000", "3", "51", "6");
+        assertTrue(output.contains("La durée ne peut pas dépasser 50 ans."));
+        assertFalse(output.contains("Montant maximum empruntable"));
+    }
+
+    @Test
     void nonIntegerDurationIsRejected() {
         assertTrue(run(List.of(), "5", "3000", "3", "2.5", "6").contains("Durée invalide"));
     }

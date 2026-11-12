@@ -160,4 +160,13 @@ class MortgageSimulationTest {
         assertThrows(IllegalArgumentException.class, () -> simulate("3000", "3", 0));
         assertThrows(IllegalArgumentException.class, () -> simulate("3000", "3", -5));
     }
+
+    @Test
+    void rateAndDurationUpperBoundsAreEnforced() {
+        assertDoesNotThrow(() -> simulate("3000", "100", 50));
+        assertThrows(IllegalArgumentException.class, () -> simulate("3000", "100.01", 20));
+        assertThrows(IllegalArgumentException.class, () -> simulate("3000", "1E+9", 20));
+        assertThrows(IllegalArgumentException.class, () -> simulate("3000", "3", 51));
+        assertThrows(IllegalArgumentException.class, () -> simulate("3000", "3", Integer.MAX_VALUE));
+    }
 }
