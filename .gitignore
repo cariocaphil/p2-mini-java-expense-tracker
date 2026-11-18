@@ -1,11 +1,14 @@
 # Ignore target and IDE files
 
-/target/
+target/
 /.idea/
 *.iml
 /.classpath
 /.project
 /.settings/
+
+# Claude Code implementation plans
+/.claude/plans/
 
 # OS files
 .DS_Store
